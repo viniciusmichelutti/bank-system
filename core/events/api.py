@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from accounts import account_gateway
-from core.exceptions import AccountNotFound
+from core.accounts.validators import validate_account
 from core.utils.decimal import precision_decimal
 from events import event_gateway
 from core.events.enums import EventType
@@ -40,7 +40,7 @@ def _withdraw(**data):
     origin_account_number = data.get('origin')
 
     origin_account = account_gateway.get_account_by_number(origin_account_number)
-    _validate_account(origin_account, origin_account_number)
+    validate_account(origin_account, origin_account_number)
 
     event_gateway.create_event(type=EventType.WITHDRAW, origin_id=origin_account['id'], amount=amount)
 
@@ -55,9 +55,9 @@ def _transfer(**data):
     destination_account_number = data.get('destination')
 
     origin_account = account_gateway.get_account_by_number(origin_account_number)
-    _validate_account(origin_account, origin_account_number)
+    validate_account(origin_account, origin_account_number)
     destination_account = account_gateway.get_account_by_number(destination_account_number)
-    _validate_account(destination_account, destination_account_number)
+    validate_account(destination_account, destination_account_number)
 
     event_gateway.create_event(
         type=EventType.TRANSFER,
@@ -75,8 +75,3 @@ def _transfer(**data):
         'origin': {'id': origin_account_number, 'balance': origin_account_new_balance},
         'destination': {'id': destination_account_number, 'balance': destination_account_new_balance}
     }
-
-
-def _validate_account(account, account_number):
-    if not account:
-        raise AccountNotFound(account_number)
