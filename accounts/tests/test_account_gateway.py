@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from accounts.account_gateway import create_account, get_account_by_number
+from accounts.account_gateway import create_account, get_account_by_number, update_account
+from accounts.models import Account
 
 
 class CreateAccountTests(TestCase):
@@ -27,3 +28,15 @@ class GetAccountByNumberTests(TestCase):
         account_found = get_account_by_number(99)
 
         self.assertIsNone(account_found)
+
+
+class UpdateAccountTests(TestCase):
+    def test_update_account(self):
+        account_id = create_account(number=123, balance=30)['id']
+        new_balance = 99
+
+        updated_rows = update_account(account_id, balance=new_balance)
+
+        self.assertEqual(1, updated_rows)
+        updated_account = Account.objects.get(id=account_id)
+        self.assertEqual(new_balance, updated_account.balance)

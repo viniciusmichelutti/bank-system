@@ -17,3 +17,9 @@ def get_account_by_number(account_number):
         account_found = None
 
     return account_found
+
+
+def update_account(account_id, **attrs):
+    from accounts.models import Account
+
+    return Account.objects.filter(id=account_id).update(**attrs)
