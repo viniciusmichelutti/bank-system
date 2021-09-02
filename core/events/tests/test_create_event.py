@@ -77,6 +77,21 @@ class CreateEventTests(TestCase):
         self.assertEqual(Decimal('57.39'), updated_destination_acc.balance)
         self.assertEvent(EventType.TRANSFER, origin_account.id, destination_account.id, Decimal('7.39'))
 
+    def test_transfer_to_non_existing_destination_account_should_create_account(self):
+        origin_account = self._create_account(1, 10)
+        destination_account_number = 222
+
+        create_event(
+            type=EventType.TRANSFER,
+            origin=origin_account.number,
+            destination=destination_account_number,
+            amount=30
+        )
+
+        destination_account = Account.objects.get(number=destination_account_number)
+        self.assertEqual(30, destination_account.balance)
+        self.assertEvent(EventType.TRANSFER, origin_account.id, destination_account.id, 30)
+
     def test_withdraw_from_non_existing_account_should_raises_exception(self):
         with self.assertRaises(AccountNotFound) as context:
             create_event(
@@ -95,19 +110,6 @@ class CreateEventTests(TestCase):
                 type=EventType.TRANSFER,
                 origin=222,
                 destination=destination_account.number,
-                amount=30
-            )
-
-        self.assertEqual('Account 222 not found.', str(context.exception))
-
-    def test_transfer_from_non_existing_destination_account_should_raises_exception(self):
-        origin_account = self._create_account(1, 10)
-
-        with self.assertRaises(AccountNotFound) as context:
-            create_event(
-                type=EventType.TRANSFER,
-                origin=origin_account.number,
-                destination=222,
                 amount=30
             )
 

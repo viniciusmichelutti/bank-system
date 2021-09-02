@@ -24,10 +24,7 @@ def _deposit(**data):
     amount = data.get('amount')
     destination_account_number = data.get('destination')
 
-    destination_account = account_gateway.get_account_by_number(destination_account_number)
-    if destination_account is None:
-        destination_account = account_gateway.create_account(number=destination_account_number)
-
+    destination_account = _get_or_create_account(destination_account_number)
     event_gateway.create_event(type=EventType.DEPOSIT, destination_id=destination_account['id'], amount=amount)
 
     new_balance = precision_decimal(destination_account['balance'] + Decimal(amount))
@@ -56,8 +53,7 @@ def _transfer(**data):
 
     origin_account = account_gateway.get_account_by_number(origin_account_number)
     validate_account(origin_account, origin_account_number)
-    destination_account = account_gateway.get_account_by_number(destination_account_number)
-    validate_account(destination_account, destination_account_number)
+    destination_account = _get_or_create_account(destination_account_number)
 
     event_gateway.create_event(
         type=EventType.TRANSFER,
@@ -75,3 +71,11 @@ def _transfer(**data):
         'origin': {'id': origin_account_number, 'balance': origin_account_new_balance},
         'destination': {'id': destination_account_number, 'balance': destination_account_new_balance}
     }
+
+
+def _get_or_create_account(account_number):
+    account = account_gateway.get_account_by_number(account_number)
+    if account is None:
+        account = account_gateway.create_account(number=account_number)
+
+    return account

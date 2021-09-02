@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from accounts.apps import AccountsConfig
 from accounts.models import Account
 from bank.api_treating_errors import api_treating_errors
 from core.accounts.api import get_balance
