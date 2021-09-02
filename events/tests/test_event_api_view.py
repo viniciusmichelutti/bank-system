@@ -5,7 +5,7 @@ from django.test.testcases import TestCase
 
 class EventAPIViewTests(TestCase):
     def setUp(self):
-        self.path = '/event/'
+        self.path = '/event'
         self.client = Client()
 
     def test_post_event_api_view(self):
